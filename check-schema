@@ -1,0 +1,88 @@
+pm.test('Response is 200 OK', function () {
+	pm.response.to.have.status(200);
+});
+pm.test('Response format is JSON', function () {
+	pm.response.to.have.header('Content-Type');
+	pm.response.to.have.header('Content-Type', 'application/json; charset=utf-8')
+});
+var schema = {
+    "type": "object",
+    "required": ["id", "name", "size", "tags", "aliases", "logoUrl", "version", "geoRegion", "countryCode", "defaultAlias"],
+    "properties": {
+        "id": {"type": "string"},
+        "name": {
+            "type": "object",
+            "required": ["en", "ru", "tr", "uk"],
+            "properties": {
+                "en": {"type": "string"},
+                "ru": {"type": "string"},
+                "tr": {"type": "string"},
+                "uk": {"type": "string"}
+            }
+        },
+        "size": {
+            "type": "object",
+            "required": ["packed", "unpacked"],
+            "properties": {
+                "packed": {"type": "integer"},
+                "unpacked": {"type": "integer"},
+            }
+        },
+        "tags": {
+            "type": "array",
+        },
+        "aliases": {
+            "type": "array",
+        },
+        "logoUrl": {
+            "type": "string",
+        },
+        "version": {
+            "type": "string",
+        },
+        "geoRegion": {
+            "type": "object",
+            "required": ["delta", "center"],
+            "properties": {
+                "delta": {
+                    "type": "object",
+                    "required": ["lat", "lon"],
+                    "properties": {
+                        "lat": {
+                            "type": "number",
+                        },
+                        "lon": {
+                            "type": "number",
+                        },
+                    },
+                },
+                "center": {
+                    "type": "object",
+                    "required": ["lat", "lon"],
+                    "properties": {
+                        "lat": {
+                            "type": "number",
+                        },
+                        "lon": {
+                            "type": "number",
+                        },
+                    },
+                },
+            },
+        },
+        "countryCode": {
+            "type": "string",
+        },
+         "defaultAlias": {
+            "type": "string",
+        },
+    },
+};
+
+var jsonData = pm.response.json();
+var i;
+for (i = 0; i < jsonData.items.length; i++) {
+    pm.test("Schema " + String(jsonData.items[i].id) + " is valid", function() {
+        pm.expect(tv4.validate(jsonData.items[i], schema)).to.be.true;
+    });
+}
